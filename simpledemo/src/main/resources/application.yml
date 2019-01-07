@@ -1,0 +1,8 @@
+# DataSource Config
+spring:
+  datasource:utf8
+    # 这里如果有错误是因为 maven mysql包 选择了 runtime 形式的 scope  可以不用管它 继续下一步就好
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://zwt.meeket.com:3306/mp_demo_db?characterEncoding=
+    username: root
+    password: Zhaowentao123!
