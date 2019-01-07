@@ -78,7 +78,7 @@ MyBatis-Plus 荣获[【2018年度开源中国最受欢迎的中国软件】](htt
 
 #### github 地址：
 
-#### 	https://github.com/wunian7yulian/Mybatis-Plus/tree/master/simpledemo
+https://github.com/wunian7yulian/Mybatis-Plus/tree/master/simpledemo
 
 #### demo 环境： 
 
@@ -130,7 +130,7 @@ INSERT INTO user (id, name, age, email) VALUES
 
 ##### 第一步、创建工程
 
-![1546839886488](C:\Users\Administrator\Desktop\pdf\myjobs\18.12.26_Mybatis_Plus_S\assets\1546839886488.png)
+![1546839886488](.\assets\1546839886488.png)
 
 输入项目包名创建完毕。
 
