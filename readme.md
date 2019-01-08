@@ -4,6 +4,30 @@
 
 [TOC]
 
+#### 简介： 
+
+​	此Demo 主要应用SpringBoot 来展示**Mybatis-Plus** 特性， 以及在开发过程中可能应用到的插件的演示。
+
+​	**本文：https://github.com/wunian7yulian/MybatisDemo**
+
+------
+
+- **相同于 [MyBatis官方指南](https://mybatis.plus/guide/) 中有了详细介绍**
+
+- **不同于 实践演示**	
+
+------
+
+- **目的:**
+
+​	主要借此做为突破口，**一是**将自我学习成文记录下来，**二是**将Demo 慢慢做成一个自己或者面向大众的后端脚手架工具。
+
+- **规划**：
+
+​	*分享-趟路-实践-总结-脚手架-分享-实践......*  
+
+​	
+
 ## 一、简单介绍
 
 ### 官方说明 ：
@@ -45,7 +69,9 @@ MyBatis-Plus 荣获[【2018年度开源中国最受欢迎的中国软件】](htt
 
 ### Mybatis-Plus中的Plus
 
-![like](https://mp.baomidou.com/img/relationship-with-mybatis.png)
+![like](https://mp.baomidou.com/img/relationship-with-mybatis.png)官方简介说明 MP 和Mybatis 就像是 游戏中的p1 和p2 一样 兄弟搭配 干活不累 、
+
+我在使用中明显感觉到 其实他更像是 马里奥和蘑菇  吃了蘑菇 我们跳的高度更高了一些。
 
 ## 二、MP的特性
 
@@ -76,11 +102,11 @@ MyBatis-Plus 荣获[【2018年度开源中国最受欢迎的中国软件】](htt
 
 ## 四、简单的入门Demo(Mysql)
 
-#### github 地址：
+#### Demo代码地址：
 
 https://github.com/wunian7yulian/Mybatis-Plus/tree/master/simpledemo
 
-#### demo 环境： 
+#### Demo 环境： 
 
 ​	windows 7
 
@@ -126,32 +152,58 @@ INSERT INTO user (id, name, age, email) VALUES
 
 #### 工程：
 
-​	为了方便快捷 选用 SpringBoot 工程作为demo
+​	为了方便快捷 选用 SpringBoot 工程作为Demo支撑
 
 ##### 第一步、创建工程
 
 ![1546839886488](/assets/1546839886488.png)
 
-输入项目包名创建完毕。
+输入项目包名 并**添加mysql模块** 创建完毕。
 
 ##### 第二步、引入依赖坐标
 
 ```xml
-<dependency>
-    <groupId>mysql</groupId>
-    <artifactId>mysql-connector-java</artifactId>
-    <scope>runtime</scope>
-</dependency>
-<dependency>
-    <groupId>org.projectlombok</groupId>
-    <artifactId>lombok</artifactId>
-    <optional>true</optional>
-</dependency>
-<dependency>
-    <groupId>com.baomidou</groupId>
-    <artifactId>mybatis-plus-boot-starter</artifactId>
-    <version>3.0.7.1</version>
-</dependency>
+ <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.0.7.1</version>
+        </dependency>
+        <!--手动添加模板引擎-->
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.20</version>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-generator</artifactId>
+            <version>3.0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-core</artifactId>
+            <version>3.0.7.1</version>
+        </dependency>
 ```
 
 ##### 第三步、配置数据源
@@ -243,13 +295,218 @@ User{id=5, name='Bill', age=24,email='test5@baomidou.com'}
 
 ## 五、核心功能
 
-### 简便之-代码生成器（AutoGenerator）
+### 核心一-简便之-代码生成器（AutoGenerator）
 
 ​	AutoGenerator 是 MyBatis-Plus 的代码生成器，通过 AutoGenerator 可以快速生成 Entity、Mapper、Mapper XML、Service、Controller 等各个模块的代码，极大的提升了开发效率。
 
+#### Demo代码地址：
+
+https://github.com/wunian7yulian/Mybatis-Plus/tree/master/autogenerator_demo
+
+#### Demo 环境： 
+
+​	同上
+
+#### 工程：
+
+​	为了方便快捷 选用 SpringBoot 工程作为Demo支撑
+
+##### 第一步、创建工程
+
+​	创建了autogenerator_demo模块（记得**添加mysql模块** ）作为演示代码生成器功能配置。
+
+##### 第二步、引入依赖坐标
+
+```xml
+<dependency>
+    <groupId>com.baomidou</groupId>
+    <artifactId>mybatis-plus-boot-starter</artifactId>
+    <version>3.0.7.1</version>
+</dependency>
+<!--手动添加模板引擎-->
+<dependency>
+    <groupId>org.freemarker</groupId>
+    <artifactId>freemarker</artifactId>
+    <version>2.3.20</version>
+</dependency>
+<dependency>
+    <groupId>com.baomidou</groupId>
+    <artifactId>mybatis-plus-generator</artifactId>
+    <version>3.0.6</version>
+</dependency>
+```
+
+**注意**：MP `3.0.3` 之后移除了自动模板引擎依赖，需要**手动添加**对应**模板引擎**
+
+##### 第三步、编写代码生成器
+
+​	直接复制就行啦！
+
+```java
+package com.lynwood.mp.autogenerator_demo;
+
+import com.baomidou.mybatisplus.core.exceptions.MybatisPlusException;
+import com.baomidou.mybatisplus.core.toolkit.StringPool;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.generator.AutoGenerator;
+import com.baomidou.mybatisplus.generator.InjectionConfig;
+import com.baomidou.mybatisplus.generator.config.*;
+import com.baomidou.mybatisplus.generator.config.po.TableInfo;
+import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
+import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+//注意引入GlobalConfig 使用 import com.baomidou.mybatisplus.generator.config.*;
+
+public class GeneratorCode {
+    /**
+     * 读取控制台内容
+     */
+    public static String scanner(String tip) {
+        Scanner scanner = new Scanner(System.in);
+        StringBuilder help = new StringBuilder();
+        help.append("请输入" + tip + "：");
+        System.out.println(help.toString());
+        if (scanner.hasNext()) {
+            String ipt = scanner.next();
+            if (StringUtils.isNotEmpty(ipt)) {
+                return ipt;
+            }
+        }
+        throw new MybatisPlusException("请输入正确的" + tip + "！");
+    }
+
+    public static void main(String[] args) {
+        // 代码生成器
+        AutoGenerator mpg = new AutoGenerator();
+
+        // 全局配置
+        GlobalConfig gc = new GlobalConfig();
+        String projectPath = System.getProperty("user.dir");
+        gc.setOutputDir(projectPath + "/src/main/java");
+        gc.setAuthor("Lynwood");
+        gc.setOpen(false);
+        mpg.setGlobalConfig(gc);
+
+        // 数据源配置
+        DataSourceConfig dsc = new DataSourceConfig();
+        dsc.setUrl("jdbc:mysql://127.0.0.1:3306/mp_demo_db?useUnicode=true&useSSL=false&characterEncoding=utf8");
+        // dsc.setSchemaName("public");
+        dsc.setDriverName("com.mysql.jdbc.Driver");
+        dsc.setUsername("root");
+        dsc.setPassword("123456");
+        mpg.setDataSource(dsc);
+
+        // 包配置
+        PackageConfig pc = new PackageConfig();
+        pc.setModuleName(scanner("模块名"));
+        pc.setParent("com.lynwood.mp.autogenerator_demo");
+        mpg.setPackageInfo(pc);
+
+        // 自定义配置
+        InjectionConfig cfg = new InjectionConfig() {
+            @Override
+            public void initMap() {
+                // to do nothing
+            }
+        };
+
+        // 如果模板引擎是 freemarker
+        String templatePath = "/templates/mapper.xml.ftl";
+        // 如果模板引擎是 velocity
+        // String templatePath = "/templates/mapper.xml.vm";
+
+        // 自定义输出配置
+        List<FileOutConfig> focList = new ArrayList<>();
+        // 自定义配置会被优先输出
+        focList.add(new FileOutConfig(templatePath) {
+            @Override
+            public String outputFile(TableInfo tableInfo) {
+                // 自定义输出文件名
+                return projectPath + "/src/main/resources/mapper/" + pc.getModuleName()
+                        + "/" + tableInfo.getEntityName() + "Mapper" + StringPool.DOT_XML;
+            }
+        });
+
+        cfg.setFileOutConfigList(focList);
+        mpg.setCfg(cfg);
+
+        // 配置模板
+        TemplateConfig templateConfig = new TemplateConfig();
+
+        // 配置自定义输出模板
+        // templateConfig.setEntity();
+        // templateConfig.setService();
+        // templateConfig.setController();
+
+        templateConfig.setXml(null);
+        mpg.setTemplate(templateConfig);
+
+        // 策略配置
+        StrategyConfig strategy = new StrategyConfig();
+        strategy.setNaming(NamingStrategy.underline_to_camel);
+        strategy.setColumnNaming(NamingStrategy.underline_to_camel);
+        strategy.setSuperEntityClass(null);
+        strategy.setEntityLombokModel(true);
+        strategy.setRestControllerStyle(true);
+        strategy.setSuperControllerClass(null);
+        strategy.setInclude(scanner("表名"));
+        strategy.setSuperEntityColumns("id");
+        strategy.setControllerMappingHyphenStyle(true);
+        strategy.setTablePrefix(pc.getModuleName() + "_");
+        mpg.setStrategy(strategy);
+        mpg.setTemplateEngine(new FreemarkerTemplateEngine());
+        mpg.execute();
+    }
+
+}
+
+```
+
+##### 第四步、运行测试
+
+![1546926876784](/assets/1546926876784.png)
 
 
 
+在控制台输入：
+
+![1546926951091](/assets/1546926951091.png)
+
+就可以生成代码啦！  
+
+都包含 ：
+
+![1546927063917](/assets/1546927063917.png)
+
+###### 注意问题点： 
+
+**如果是多模块项目 ：** 
+
+​	**生成的文件会直接到了父项目目录下**，
+
+​	原因是：在代码的全局配置中 `String projectPath = System.getProperty("user.dir");` 获取***Working Directory***时 返回的是项目路径，并非模块路径！
+
+###### 解决方法：
+
+​	我们可以设定运行参数选项
+
+![1546927538730](/assets/1546927538730.png)
+
+
+
+将 **Working Directory** 调整为 **<u>当前模块目录</u>** 再次运行就ok了！
+
+
+
+- 因为没有引入mvc 模块 以至于@Controller 会飘红  再Demo中就没有将生成代码传入  大可拉取代码本地使用！
+
+- 相关代码生成器的配置：[官方生成器配置](https://mybatis.plus/config/generator-config.html) 可配置项过多无法详细介绍 有相关使用会提及
+
+### 核心二 - 清晰之-CRUD接口
 
 
 

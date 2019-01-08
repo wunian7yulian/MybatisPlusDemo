@@ -6,6 +6,7 @@
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/simpledemo/pom.xml" />
+        <option value="$PROJECT_DIR$/autogenerator_demo/pom.xml" />
       </list>
     </option>
   </component>
