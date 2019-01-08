@@ -130,7 +130,7 @@ INSERT INTO user (id, name, age, email) VALUES
 
 ##### 第一步、创建工程
 
-![1546839886488](.\assets\1546839886488.png)
+![1546839886488](/assets/1546839886488.png)
 
 输入项目包名创建完毕。
 
