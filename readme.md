@@ -104,7 +104,7 @@ MyBatis-Plus 荣获[【2018年度开源中国最受欢迎的中国软件】](htt
 
 #### Demo代码地址：
 
-https://github.com/wunian7yulian/Mybatis-Plus/tree/master/simpledemo
+https://github.com/wunian7yulian/MybatisDemo/tree/master/simpledemo
 
 #### Demo 环境： 
 
@@ -301,7 +301,7 @@ User{id=5, name='Bill', age=24,email='test5@baomidou.com'}
 
 #### Demo代码地址：
 
-https://github.com/wunian7yulian/Mybatis-Plus/tree/master/autogenerator_demo
+https://github.com/wunian7yulian/MybatisDemo/tree/master/simpledemo
 
 #### Demo 环境： 
 
