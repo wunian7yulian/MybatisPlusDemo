@@ -484,11 +484,7 @@ public class GeneratorCode {
 
 ![1546927063917](/assets/1546927063917.png)
 
-###### 注意问题点： 
-
-**如果是多模块项目 ：** 
-
-​	**生成的文件会直接到了父项目目录下**，
+##### **发现问题**： 如果是多模块项目 生成的文件会直接到了父项目目录下
 
 ​	原因是：在代码的全局配置中 `String projectPath = System.getProperty("user.dir");` 获取**Working Directory**时 返回的是项目路径，并非模块路径！
 
@@ -509,6 +505,10 @@ public class GeneratorCode {
 - 相关代码生成器的配置：[官方生成器配置](https://mybatis.plus/config/generator-config.html) 可配置项过多无法详细介绍 有相关使用会提及
 
 ### 核心二 - 清晰之-CRUD接口
+
+#### Demo代码地址：
+
+https://github.com/wunian7yulian/MybatisDemo/tree/master/mp_crud_demo
 
 ​	Mybatis-Plus 为我们提供了丰富的 增删改查接口 
 
