@@ -490,7 +490,7 @@ public class GeneratorCode {
 
 ​	**生成的文件会直接到了父项目目录下**，
 
-​	原因是：在代码的全局配置中 `String projectPath = System.getProperty("user.dir");` 获取***Working Directory***时 返回的是项目路径，并非模块路径！
+​	原因是：在代码的全局配置中 `String projectPath = System.getProperty("user.dir");` 获取**Working Directory**时 返回的是项目路径，并非模块路径！
 
 ###### 解决方法：
 
