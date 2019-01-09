@@ -741,7 +741,7 @@ SELECT_BY_ID("selectById", "根据ID 查询一条数据", "SELECT %s FROM %s WHE
 
 
 
-###### **Mapper - 简单的**CRUD:
+###### Mapper - 简单的CRUD:
 
 ```java
 @RunWith(SpringRunner.class)
@@ -787,9 +787,9 @@ public class MpCrudDemoApplicationTests {
 }
 ```
 
-##### 发现问题: 虽然MP替我生成了 uuid 作为主键,但是还是想用数据库自增形式主键怎么办?
+##### **发现问题**: 虽然MP替我生成了 uuid 作为主键,但是还是想用数据库自增形式主键怎么办?
 
-##### 解决:
+###### 解决:
 
 MP提供的主键策略有:
 
@@ -911,17 +911,83 @@ INSERT INTO user ( name, age, email) VALUES
 
 ┓( ´∀` )┏  ~
 
- 然后分析其作用  觉得既然有warpper的强大条件构造器 决定不再分析  想了解可以点击:
+ 然后分析其作用  觉得既然有wrapper的强大条件构造器 决定不再分析  想了解可以点击:
 
 **[源码注释](https://gitee.com/baomidou/mybatis-plus/blob/3.0/mybatis-plus-extension/src/main/java/com/baomidou/mybatisplus/extension/injector/methods/additional/InsertBatchSomeColumn.java)**
 
 不过 **案例**  说明了MP的一些可以自己扩展的一个流程 :
 
+1. 第一步: 在`UserMapper`添加方法
 
+   ```java
+   /** 清空表数据 */
+   void clearTable();
+   ```
 
+2. 第二步:自定义实现
 
+   在于`business`同级下创建`mp_injector/methods`目录并创建**类名**`CLearTable.java` **要与**添加的**方法名** **相同!** 
 
+   且要实现`com.baomidou.mybatisplus.core.injector.AbstractMethod` 完成自定义扩展
 
+   ```java
+   public class ClearTable extends AbstractMethod {
+       @Override
+       public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {
+           /* 执行 SQL */
+           String sql = "delete from " + tableInfo.getTableName();
+           /* mapper 接口方法名一致 */
+           String method = "clearTable";
+           SqlSource sqlSource = languageDriver.createSqlSource(configuration, sql, modelClass);
+           return this.addDeleteMappedStatement(mapperClass, method, sqlSource);
+       }
+   }
+   
+   ```
+
+3. 第三步:将自定义实现 添加到MP方法列表
+
+   在`mp_injector`下创建`MySqlInjector.java` 来进行对MP的**扩展操作:**
+
+   需要继承`com.baomidou.mybatisplus.core.injector.DefaultSqlInjector` 并且重写 MP获取方法列表的方法
+
+   ```java
+   
+   @Component
+   public class MySqlInjector extends DefaultSqlInjector {
+       @Override
+       public List<AbstractMethod> getMethodList() {
+           List<AbstractMethod> methodList = super.getMethodList();
+           //增加了 自定义方法
+           methodList.add(new ClearTable());
+           return methodList;
+       }
+   }
+   
+   ```
+
+4. 第四步:测试
+
+   ```java
+   @Test
+   public void myInjectorMapperCURD() {
+       userMapper.clearTable();
+   }
+   ```
+
+   查库 全部删除了
+
+5. 总结: 
+
+   不难发现其实际上就是 在上文 [ 对MP探个究竟](#第五步、对MP探个究竟！) 中探索到的 所有方法的原理
+
+###### Service - CRUD:
+
+​	非Wrapper部分基本与Mapper 接口一致   只是将接口提到了service层.
+
+​	略~
+
+### 核心三 - 强大之 -Wrapper条件构造器
 
 
 

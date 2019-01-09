@@ -85,8 +85,10 @@ public class MpCrudDemoApplicationTests {
         System.out.println("deleteByMap:\n"+ deleteCount2 );
         // 1
     }
-
-
+    @Test
+    public void myInjectorMapperCURD() {
+        userMapper.clearTable();
+    }
 
 
 

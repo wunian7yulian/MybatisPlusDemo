@@ -12,5 +12,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 2019-01-09
  */
 public interface UserMapper extends BaseMapper<User> {
-
+    void clearTable();
 }
