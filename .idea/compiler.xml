@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="autogenerator_demo" />
+        <module name="mp_crud_demo" />
         <module name="simpledemo" />
       </profile>
     </annotationProcessing>
@@ -14,6 +15,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="autogenerator_demo" options="-parameters" />
+      <module name="mp_crud_demo" options="-parameters" />
       <module name="simpledemo" options="-parameters" />
     </option>
   </component>

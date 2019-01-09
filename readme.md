@@ -14,19 +14,19 @@
 
 - **相同于 [MyBatis官方指南](https://mybatis.plus/guide/) 中有了详细介绍**
 
-- **不同于 实践演示**	
+	 **不同于 实践演示**	
 
 ------
 
 - **目的:**
 
-​	主要借此做为突破口，**一是**将自我学习成文记录下来，**二是**将Demo 慢慢做成一个自己或者面向大众的后端脚手架工具。
+		主要借此做为突破口，**一是**将自我学习成文记录下来，**二是**将Demo 慢慢做成一个自己或者面向大众的后端脚手架工具。
 
 - **规划**：
 
-​	*分享-趟路-实践-总结-脚手架-分享-实践......*  
+		*分享-趟路-实践-总结-脚手架-分享-实践......*  
 
-​	
+	​	
 
 ## 一、简单介绍
 
@@ -120,6 +120,8 @@ https://github.com/wunian7yulian/MybatisDemo/tree/master/simpledemo
 
 ##### 数据库：MySql
 
+创建数据库`mp_demo_db`设置字符集 utf-8
+
 ###### DDL:
 
 ```sql
@@ -127,12 +129,12 @@ https://github.com/wunian7yulian/MybatisDemo/tree/master/simpledemo
 DROP TABLE IF EXISTS user;
 
 CREATE TABLE `user` (
-  `id` bigint(20) NOT NULL COMMENT '主键ID',
+  `id` bigint(20) PRIMARY KEY AUTO_INCREMENT  COMMENT '主键ID',
   `name` varchar(30) DEFAULT NULL COMMENT '姓名',
   `age` int(11) DEFAULT NULL COMMENT '年龄',
-  `email` varchar(50) DEFAULT NULL COMMENT '邮箱',
-  PRIMARY KEY (`id`)
+  `email` varchar(50) DEFAULT NULL COMMENT '邮箱'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 ```
 
@@ -309,9 +311,9 @@ https://github.com/wunian7yulian/MybatisDemo/tree/master/simpledemo
 
 #### 工程：
 
-​	为了方便快捷 选用 SpringBoot 工程作为Demo支撑
+​	
 
-##### 第一步、创建工程
+##### 第一步、创建模块
 
 ​	创建了autogenerator_demo模块（记得**添加mysql模块** ）作为演示代码生成器功能配置。
 
@@ -454,7 +456,7 @@ public class GeneratorCode {
         strategy.setRestControllerStyle(true);
         strategy.setSuperControllerClass(null);
         strategy.setInclude(scanner("表名"));
-        strategy.setSuperEntityColumns("id");
+        strategy.setSuperEntityColumns(null);
         strategy.setControllerMappingHyphenStyle(true);
         strategy.setTablePrefix(pc.getModuleName() + "_");
         mpg.setStrategy(strategy);
@@ -508,6 +510,418 @@ public class GeneratorCode {
 
 ### 核心二 - 清晰之-CRUD接口
 
+​	Mybatis-Plus 为我们提供了丰富的 增删改查接口 
+
+​	我们可以分为三类 **Mapper的CRUD接口**、**Service的CRUD接口**和**mapper层选装件接口**：
+
+![1546932099260](/assets/1546932099260.png)
+
+​	确实比较丰富 ， 下面会以具有代表性的例子来使用 演示 作为Demo主要内容
+
+#### 工程：
+
+##### 第一步、创建模块
+
+​	创建mp_crud_demo模块 选择mysql 
+
+##### 第二步、引入依赖坐标
+
+​	因为需要生成表对应Pojo 还需要代码生成器  
+
+​	然后我们将上面的直接拷贝一下 
+
+```xml
+<dependency>
+    <groupId>com.baomidou</groupId>
+    <artifactId>mybatis-plus-boot-starter</artifactId>
+    <version>3.0.7.1</version>
+</dependency>
+<!--手动添加模板引擎-->
+<dependency>
+    <groupId>org.freemarker</groupId>
+    <artifactId>freemarker</artifactId>
+    <version>2.3.20</version>
+</dependency>
+<dependency>
+    <groupId>com.baomidou</groupId>
+    <artifactId>mybatis-plus-generator</artifactId>
+    <version>3.0.6</version>
+</dependency>
+```
+
+​	再添加 lombok 依赖(因：生成代码中的实体默认是使用@Data 等注解的)
+
+```xml
+ <dependency>
+     <groupId>org.projectlombok</groupId>
+     <artifactId>lombok</artifactId>
+     <optional>true</optional>
+</dependency>
+```
+
+##### 第三步、生成代码
+
+- **复制**上一Demo<u>模块生成器</u>**代码**
+- **更改模块名**称使之对应 ` pc.setParent("com.lynwood.mp.mp_crud_demo"); '`
+- **设置Working Directory** 为**当前模块** 防止文件输出位置错误
+- 运行**获取代码**
+- **删除**不必要用到的**controller层**
+
+##### 第四步、其他配置需要
+
+- 设定mybatis扫描位置
+
+   在`MpCrudDemoApplication` 上**添加注解**：`@MapperScan("com.lynwood.mp.mp_crud_demo.*.mapper**")`**
+
+   **注意 扫描包的位置**！
+
+- **配置数据源**：
+
+  ```yaml
+  # DataSource Config
+  spring:
+    datasource:
+    # 这里如果有错误是因为 maven mysql包 选择了 runtime 形式的 scope  可以不用管它 继续下一步就好
+      driver-class-name: com.mysql.jdbc.Driver
+      url: jdbc:mysql://127.0.0.1:3306/mp_demo_db?characterEncoding=utf-8
+      username: root
+      password: 123456
+  ```
+
+##### 第五步、对MP探个究竟！
+
+​	<u>**以`userMapper `作为范例**</u>
+
+- 查看`UserMapper`:
+
+  打开`UserMapper.java`源代码:
+
+  ```java
+  public interface UserMapper extends BaseMapper<User> {
+  }
+  
+  ```
+
+  不难发现它**继承了**`BaseMapper<User>` 接口 
+
+  打开`com.baomidou.mybatisplus.core.mapper.BaseMapper<T>` 
+
+  查看当前接口的结构(Structure): 
+
+  ![1547002387987](/assets/1547002387987.png)
+
+  **原来**是MP 将之前的mybatis里面**每个mapper的所有方法** 经过**泛型**进行提炼到了一个BaseMapper 接口中,我们**只需要将自己的mapper 继承此接口且将泛型指定便可获得强大的CRUD功能**!
+
+- 再去查看`UserMapper.xml` 文件 :
+
+``` java
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lynwood.mp.mp_crud_demo.business.mapper.UserMapper">
+
+</mapper>
+```
+
+​	**完全丢弃了`Mybatis`中字段映射以及一段段复杂的配置!**
+
+------
+
+##### **发现问题**:  我虽然看到了方法 但是并没有一条SQL 那么它是怎样做到查询的呢?
+
+###### 探索:
+
+- ***首先*** 在项目搭建的时候添加了 坐标:
+
+```xml
+       <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.0.7.1</version>
+        </dependency>
+```
+
+我们进入`mybatis-plus-boot-starter`的pom 发现他帮我们装配了对应版本的`mybatis-plus` 并且依赖了其他 例如: `spring-boot-autoconfigure``spring-boot-starter-jdbc`等;
+
+因为**了解**`SpringBoot`中**配置入口**是一个`@Configuration` 
+
+那么**打开**`mybatis-plus-boot-starter`的`jar`包 **看到**:`MybatisPlusAutoConfiguration.java`:
+
+```java
+...
+public class MybatisPlusAutoConfiguration {
+ ...
+    @Bean
+    @ConditionalOnMissingBean
+    public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
+     ...
+         
+        if (this.applicationContext.getBeanNamesForType(ISqlInjector.class, false, false).length > 0) {
+            ISqlInjector iSqlInjector = (ISqlInjector)this.applicationContext.getBean(ISqlInjector.class);
+            globalConfig.setSqlInjector(iSqlInjector);
+        }
+
+        factory.setGlobalConfig(globalConfig);
+        return factory.getObject();
+ }
+...
+}
+```
+
+看到它在设置`sqlSessionFactory`的时候为我们**指定**了一个`com.baomidou.mybatisplus.core.injector.ISqlInjector.class` **作为**`factory.globalConfig.sqlInjector`(**SQL注入器**)
+
+ ***然后*** 我们打开:`ISqlInjector`的实现类`AbstractSqlInjector`
+
+```java
+...
+    public abstract class AbstractSqlInjector implements ISqlInjector {
+        ...
+            public void inspectInject(MapperBuilderAssistant builderAssistant, Class<?> mapperClass) {
+            ...
+            List<AbstractMethod> methodList = this.getMethodList();
+            Assert.notEmpty(methodList, "No effective injection method was found.", new Object[0]);
+       
+            methodList.forEach((m) -> {
+                m.inject(builderAssistant, mapperClass);
+            });
+            ...
+        }
+    }
+```
+
+`methodList` 是所有的方法的一个集合 其**元素类型**都是`AbstractMethod.class`类型的, 并且对**每个方法都进行了**`inject(...)`,
+
+那么查看`inject()`方法源码:
+
+```java
+public void inject(MapperBuilderAssistant builderAssistant, Class<?> mapperClass) {
+   ...
+        this.injectMappedStatement(mapperClass, modelClass, tableInfo);
+    }
+}
+```
+
+**原来最终调用**了`injectMappedStatement()`方法   
+
+**然而** 
+
+```java
+public abstract MappedStatement injectMappedStatement(Class<?> var1, Class<?> var2, TableInfo var3);
+```
+
+是**抽象的** 需要自己的子类**去实现**的  
+
+![1547011199397](/assets/1547011199397.png)
+
+我们**以**其中一个 `SelectById.class`  作为**例子**查看
+
+```java
+  public MappedStatement injectMappedStatement(Class<?> mapperClass, Class<?> modelClass, TableInfo tableInfo) {
+        SqlMethod sqlMethod = SqlMethod.SELECT_BY_ID;
+        SqlSource sqlSource = new RawSqlSource(this.configuration, String.format(sqlMethod.getSql(), this.sqlSelectColumns(tableInfo, false), tableInfo.getTableName(), tableInfo.getKeyColumn(), tableInfo.getKeyProperty()), Object.class);
+        return this.addSelectMappedStatement(mapperClass, sqlMethod.getMethod(), sqlSource, modelClass, tableInfo);
+    }
+
+```
+
+**再去查看** `SqlMethod.SELECT_BY_ID;`: 
+
+```java
+SELECT_BY_ID("selectById", "根据ID 查询一条数据", "SELECT %s FROM %s WHERE %s=#{%s}"),
+```
+
+*soga~*
+
+***结束*** 最后实际上 MP将SQL语句 封装了**固定的模板** `com.baomidou.mybatisplus.core.enums.SqlMethod` 从而提供给了我们便捷的使用!
+
+##### 第六步、使用它
+
+​	我们使用**非Wrapper**的具有代表性的接口作为Demo的演示
+
+​	Wrapper 在后面会有单独的Demo演示
+
+
+
+###### **Mapper - 简单的**CRUD:
+
+```java
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class MpCrudDemoApplicationTests {
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Test
+    public void simplenessMapperCURD() {
+        //增加
+        User addUser = new User();
+        addUser.setAge(18);
+        addUser.setEmail("wunian_@hotmail.com");
+        addUser.setName("Lynwood");
+        userMapper.insert(addUser); // insert 之后是将id装配到实体对象里的
+        System.out.println("add:\n" + addUser);
+        // User(id=1082883152404103169, name=Lynwood, age=18, email=wunian_@hotmail.com)
+        // id = 1082883152404103169  之所以这么长是因为  MP底层给我们自己以uuid 的形式添加了 user对象的id属性
+
+        //修改
+        User updateUser = new User();
+        updateUser.setId(1082883152404103169L);
+        updateUser.setName("ok?");
+        userMapper.updateById(updateUser);
+        System.out.println("update:\n" + updateUser);
+        //  User(id=1082883152404103169, name=ok?, age=null, email=null)
+        // 刷新数据库 更改成功 但是没有讲其他对象进行装配
+
+        //查询
+        User selectUser = userMapper.selectById(1082883152404103169L);
+        System.out.println("select:\n" + selectUser);
+        //User(id=1082883152404103169, name=ok?, age=18, email=wunian_@hotmail.com)
+
+        //删除
+        int i = userMapper.deleteById(1082883152404103169L);
+        if (i==1){
+            System.out.println("delete:\n" + "删除成功!");
+            //刷新库 删除成功
+        }
+    }
+}
+```
+
+##### 发现问题: 虽然MP替我生成了 uuid 作为主键,但是还是想用数据库自增形式主键怎么办?
+
+##### 解决:
+
+MP提供的主键策略有:
+
+- AUTO 数据库ID自增
+- INPUT 用户输入ID
+- ID_WORKER 全局唯一ID，Long类型的主键
+- ID_WORKER_STR 字符串全局唯一ID
+- UUID 全局唯一ID，UUID类型的主键
+- NONE 该类型为未设置主键类型
+
+MP的主键策略**默认**使用的是`ID_WORKER` (详情:https://mybatis.plus/config/#idtype)
+
+在User 中**设定 id字段**为`@TableId(type = IdType.AUTO)` 
+
+或者 **全局设置 使用主键策略**,在yaml 添加:
+
+```yaml
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: auto
+```
+
+**重要**: **因为刚才的测试插入了id为:`1082883152404103169`的 数据 我们需要将自增序列首先恢复正常! 否则下一个id为1082883152404103170 看上去也是乱的!!  小心坑哈~  **
+
+```sql
+delete from user;
+alter table user auto_increment= 1;
+```
+
+尝试 增加操作  输出: 
+
+```CQL
+add:
+User(id=1, name=Lynwood, age=18, email=wunian_@hotmail.com)
+```
+
+###### Mapper - 批量的CRUD接口:
+
+​	填充测试数据: 
+
+```sql
+DELETE FROM user;
+INSERT INTO user ( name, age, email) VALUES
+( 'Lynwood',18,'wunian_@hotmail.com')
+( 'Jone', 18, 'test1@baomidou.com'),
+( 'Jack', 20, 'test2@baomidou.com'),
+( 'Tom', 28, 'test3@baomidou.com'),
+( 'Sandy', 21, 'test4@baomidou.com'),
+( 'Billie', 24, 'test5@baomidou.com');
+```
+
+测试:
+
+```java
+ @Test
+    public void batchMapperCURD() {
+        // 多id 查询
+        List<Long> idList = new ArrayList<>();
+        idList.add(1L);
+        idList.add(3L);
+        List<User> userList = userMapper.selectBatchIds(idList);// id的多个查询
+        System.out.println("selectBatch:" );
+        userList.forEach(System.out::println);
+        //User(id=1, name=Lynwood, age=18, email=wunian_@hotmail.com)
+        //User(id=3, name=Jack, age=20, email=test2@baomidou.com)
+
+        // 多条件  查询
+        Map<String,Object> stringObjectMap = new HashMap<>();
+        stringObjectMap.put("age",18);
+        stringObjectMap.put("id",2);
+        List<User> selectByMap = userMapper.selectByMap(stringObjectMap);// 字段-值 键值对集合 作为 '且' 关系
+        System.out.println("selectByMap:" );
+        selectByMap.forEach(System.out::println);
+        //User(id=2, name=Jone, age=18, email=test1@baomidou.com)
+        
+        // 多id 删除
+        int deleteCount = userMapper.deleteBatchIds(idList);// id的多个删除
+        System.out.println("deleteBatch:\n"+ deleteCount );
+        // 2
+        
+        // 多条件 删除
+        int deleteCount2 = userMapper.deleteByMap(stringObjectMap);// id的多个查询
+        System.out.println("deleteByMap:\n"+ deleteCount2 );
+        // 1
+    }
+```
+
+​	注意使用`*ByMap()` 方法时 条件是 **且关系**就ok了!
+
+###### Mapper - 选装组件:
+
+查看了MP作者说的: 
+
+![1547021955044](/assets/1547021955044.png)
+
+中的 **[案例](https://gitee.com/baomidou/mybatis-plus-samples/tree/master/mybatis-plus-sample-sql-injector)** 以及 **[源码注释](https://gitee.com/baomidou/mybatis-plus/blob/3.0/mybatis-plus-extension/src/main/java/com/baomidou/mybatisplus/extension/injector/methods/additional/InsertBatchSomeColumn.java)** 之后
+
+作者在源码注释中是这么写的....:
+
+```java
+	/**
+ * <p> 批量新增数据,自选字段 insert </p>
+ * <p> 不同的数据库支持度不一样!!!  只在 mysql 下测试过!!!  只在 mysql 下测试过!!!  只在 mysql 下测试过!!! </p>
+ * <p> 除了主键是 <strong> 数据库自增的未测试 </strong> 外理论上都可以使用!!! </p>
+ * <p> 如果你使用自增有报错或主键值无法回写到entity,就不要跑来问为什么了,因为我也不知道!!! </p>
+ * <p>
+ * 自己的通用 mapper 如下使用:
+ * int insertBatchSomeColumn(List<T> entityList);
+ *
+ * <li> 注意1: 不要加任何注解 !! </li>
+ * <li> 注意2: 自选字段 insert !!,如果个别字段在 entity 里为 null 但是数据库中有配置默认值, insert 后数据库字段是为 null 而不是默认值 </li>
+ *
+ * <p>
+ * 常用的构造入参:
+ * </p>
+ */
+```
+
+┓( ´∀` )┏  ~
+
+ 然后分析其作用  觉得既然有warpper的强大条件构造器 决定不再分析  想了解可以点击:
+
+**[源码注释](https://gitee.com/baomidou/mybatis-plus/blob/3.0/mybatis-plus-extension/src/main/java/com/baomidou/mybatisplus/extension/injector/methods/additional/InsertBatchSomeColumn.java)**
+
+不过 **案例**  说明了MP的一些可以自己扩展的一个流程 :
+
+
+
+
+
+
 
 
 
@@ -521,6 +935,8 @@ public class GeneratorCode {
 > MyBatis-Plus 配置进阶： https://mp.baomidou.com/config/
 >
 > MyBatis-Plus 代码生成器配置https://mp.baomidou.com/config/generator-config.html
+>
+> mybatis-plus sql注入原理https://www.liangzl.com/get-article-detail-19831.html
 >
 > CnBlogs 为什么用ORM：https://www.cnblogs.com/bobositlife/articles/what-is-orm-why-use-orm.html
 >

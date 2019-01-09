@@ -109,7 +109,7 @@ public class GeneratorCode {
         strategy.setRestControllerStyle(true);
         strategy.setSuperControllerClass(null);
         strategy.setInclude(scanner("表名"));
-        strategy.setSuperEntityColumns("id");
+        strategy.setSuperEntityColumns(null);
         strategy.setControllerMappingHyphenStyle(true);
         strategy.setTablePrefix(pc.getModuleName() + "_");
         mpg.setStrategy(strategy);
