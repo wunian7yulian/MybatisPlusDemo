@@ -20,13 +20,13 @@
 
 - **目的:**
 
-		主要借此做为突破口，**一是**将自我学习成文记录下来，**二是**将Demo 慢慢做成一个自己或者面向大众的后端脚手架工具。
+   主要借此做为突破口， **一是**将自我学习成文记录下来， **二是**将Demo 慢慢做成一个自己或者面向大众的后端脚手架工具。
 
 - **规划**：
 
-		*分享-趟路-实践-总结-脚手架-分享-实践......*  
+   *分享-趟路-实践-总结-脚手架-分享-实践......*  
 
-	​	
+   ​	
 
 ## 一、简单介绍
 
@@ -562,7 +562,7 @@ public class GeneratorCode {
 ##### 第三步、生成代码
 
 - **复制**上一Demo<u>模块生成器</u>**代码**
-- **更改模块名**称使之对应 ` pc.setParent("com.lynwood.mp.mp_crud_demo"); '`
+- **更改模块名**称使之对应 ` pc.setParent("com.lynwood.mp.mp_crud_demo"); `
 - **设置Working Directory** 为**当前模块** 防止文件输出位置错误
 - 运行**获取代码**
 - **删除**不必要用到的**controller层**
@@ -571,7 +571,7 @@ public class GeneratorCode {
 
 - 设定mybatis扫描位置
 
-   在`MpCrudDemoApplication` 上**添加注解**：`@MapperScan("com.lynwood.mp.mp_crud_demo.*.mapper**")`**
+   在`MpCrudDemoApplication` 上**添加注解**：`@MapperScan("com.lynwood.mp.mp_crud_demo.*.mapper**")`
 
    **注意 扫描包的位置**！
 
@@ -813,7 +813,7 @@ mybatis-plus:
       id-type: auto
 ```
 
-**重要**: **因为刚才的测试插入了id为:`1082883152404103169`的 数据 我们需要将自增序列首先恢复正常! 否则下一个id为1082883152404103170 看上去也是乱的!!  小心坑哈~  **
+**重要**:  **因为刚才的测试插入了id为:`1082883152404103169`的 数据 我们需要将自增序列首先恢复正常! 否则下一个id为1082883152404103170 看上去也是乱的!!  小心坑哈~  **
 
 ```sql
 delete from user;
@@ -891,7 +891,7 @@ INSERT INTO user ( name, age, email) VALUES
 作者在源码注释中是这么写的....:
 
 ```java
-	/**
+/**
  * <p> 批量新增数据,自选字段 insert </p>
  * <p> 不同的数据库支持度不一样!!!  只在 mysql 下测试过!!!  只在 mysql 下测试过!!!  只在 mysql 下测试过!!! </p>
  * <p> 除了主键是 <strong> 数据库自增的未测试 </strong> 外理论上都可以使用!!! </p>
