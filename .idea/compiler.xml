@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="autogenerator_demo" />
         <module name="mp_crud_demo" />
+        <module name="mp_wrapper_demo" />
         <module name="simpledemo" />
       </profile>
     </annotationProcessing>
@@ -16,6 +17,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="autogenerator_demo" options="-parameters" />
       <module name="mp_crud_demo" options="-parameters" />
+      <module name="mp_wrapper_demo" options="-parameters" />
       <module name="simpledemo" options="-parameters" />
     </option>
   </component>

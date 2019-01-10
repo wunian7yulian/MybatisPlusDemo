@@ -48,9 +48,7 @@ Mybatis-Plus（简称MP）是一个Mybatis的增强工具，在 Mybatis 的基�
 
 ### 成绩：
 
-MyBatis-Plus 荣获[【2018年度开源中国最受欢迎的中国软件】](https://www.oschina.net/question/2896879_2290300) TOP5 	
-
-![开元中国排名](https://oscimg.oschina.net/oscnet/2bf976658b2c353bbe308306d64d1b129aa.jpg)	
+MyBatis-Plus 荣获[【2018年度开源中国最受欢迎的中国软件】](https://www.oschina.net/question/2896879_2290300) TOP5 	​	
 
 ### 最新版本：
 
@@ -509,6 +507,8 @@ public class GeneratorCode {
 #### Demo代码地址：
 
 https://github.com/wunian7yulian/MybatisDemo/tree/master/mp_crud_demo
+
+
 
 ​	Mybatis-Plus 为我们提供了丰富的 增删改查接口 
 
@@ -989,6 +989,480 @@ INSERT INTO user ( name, age, email) VALUES
 
 ### 核心三 - 强大之 -Wrapper条件构造器
 
+#### Demo代码地址：
+
+https://github.com/wunian7yulian/MybatisDemo/tree/master/mp_wrapper_demo
+
+#### 工程: 
+
+##### 第一 -->第四步 同上一工程步骤  
+
+- 注意更改生成器中的 包名模块名
+
+- 复制yaml 时注意增加 MP主键策略配置: 
+
+```yaml
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: auto
+```
+
+##### 第五步、探索Wrapper
+
+​	备:关于 **java8 lambda 表达式** 默认为熟悉
+
+###### Wrapper含义: 
+
+​	![1547101878214](/assets/1547101878214.png)
+
+###### 版本不同:
+
+因为MP 对外已经有了两个大的版本  2.x 和3.x版本
+
+在2.x版本中 `EntityWrapper `作为Wrapper 的主要继承实现,
+
+例:
+
+```java
+ EntityWrapper<User> ew = new EntityWrapper<User>();
+    ew.setEntity(new User(1));
+    ew.where("user_name={0}", "'zhangsan'").and("id=1")
+            .orNew("user_status={0}", "0").or("status=1")
+            .notLike("user_nickname", "notvalue")
+            .andNew("new=xx").like("hhh", "ddd")
+            .andNew("pwd=11").isNotNull("n1,n2").isNull("n3")
+            .groupBy("x1").groupBy("x2,x3")
+            .having("x1=11").having("x3=433")
+            .orderBy("dd").orderBy("d1,d2");
+    System.out.println(ew.getSqlSegment());
+
+```
+
+实际上 此包装实际上是**使用的是 数据库字段** 不是Pojo 里面的成员变量
+
+在3.x 升级中对Wrapper进行了改动:
+
+- 全面支持了jdk8的Lambda的使用
+
+- `Wrapper<T>`实现类的改动
+
+  1.`EntityWrapper<T>`更名为`QueryWrapper<T>`
+  2.新增一个实现类`UpdateWrapper<T>`用于`update`方法
+
+- `BaseMapper<T>`的改动
+
+  1.去除了`insertAllColumn(T entity)`方法
+  2.去除了`updateAllColumn(T entity)`方法
+  3.新增`update(T entity, Wrapper<T> updateWrapper)`方法
+
+在3.x 中将 所有的操作划分成 查询`QueryWrapper`和`UpdateWrapper` 并且将其共有的方法做了一层抽离放到了`AbstractWrapper`中
+
+###### 3.x Wrapper主要继承结构: 
+
+![1547103652530](/assets/1547103652530.png)
+
+我们查看**四个实现类**:`QueryWrapper`、`UpdateWrapper` 、`LambdaQueryWrapper`、`LambdaUpdateWrapper` 的一个**总体抽象**: `AbstractWrapper`
+
+它将共有的提升到这一层并做了实现,
+
+​	**其实主要是对SQL语言所有DML语句中公用的一些关键字做了统一的接口**
+
+###### AbstractWrapper接口:
+
+![1547104354429](/assets/1547104354429.png)
+
+###### AbstractWrapper接口:
+
+![1547104548508](/assets/1547104548508.png)
+
+######  UpdateWrapper接口:
+
+![1547104637008](/assets/1547104637008.png)
+
+
+
+##### 第六步、使用接口
+
+为了方便查看最后MP封装转换的最终SQL，在yml配置文件中添加配置:
+
+``` yaml
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+```
+
+###### 编写测试类:
+
+Demo 中有  链接:
+
+```java
+...
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class MpWrapperDemoApplicationTests {
+    @Autowired
+    private UserMapper userMapper;
+
+    /**
+     *  测试 allEq()  等同于 WHERE name = ? AND age = ?
+     *  +
+     *  使用 selectList() 返回多个指定类型对象 的集合
+     *
+     */
+    @Test
+    public void abstractWrapperTest_allEq() {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        HashMap<String,Object> param = new HashMap<>();
+        param.put("name","Lynwood");
+        param.put("age","18");
+        userQueryWrapper.allEq(param);
+        List<User> userList = userMapper.selectList(userQueryWrapper);
+        userList.forEach(System.out::println);
+        /**
+         * 输出:
+         *    ==>  Preparing: SELECT id,name,age,email FROM user WHERE name = ? AND age = ?
+         *    ==> Parameters: Lynwood(String), 18(String)
+         */
+    }
+
+    /**
+     *  测试 eq()  等同于 WHERE name = ?
+     *  +
+     *  使用selectOne()
+     *      当返回多条会报错
+     */
+    @Test
+    public void abstractWrapperTest_eq() {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.eq("name","Lynwood");
+        User user = userMapper.selectOne(userQueryWrapper);
+        System.out.println(user);
+        /**
+         * 输出:
+         *           Preparing: SELECT id,name,age,email FROM user WHERE name = ?
+         *           Parameters: Lynwood(String)
+         */
+    }
+
+    /**     not equals 缩写 ~~
+     *
+     *  测试 ne()  等同于 WHERE age <> ?
+     *  +
+     *  使用 selectObjs() 返回多个 非指定类型对象 的集合
+     *
+     */
+    @Test
+    public void abstractWrapperTest_ne() {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.ne("age", 18);
+        List<Object> objectList = userMapper.selectObjs(userQueryWrapper);
+        objectList.forEach(System.out::println);
+        /**
+         * 输出:
+         *    ==>  Preparing: SELECT id,name,age,email FROM user WHERE age <> ?
+         *      ==> Parameters: 18(Integer)
+         */
+    }
+
+    /***************************************************** 多接口连用 * 默认AND 关系*******************************/
+    /**     测试
+     *      gt() : greater than       等同于     >
+     *      ge() : greater equals     等同于     >=
+     *      lt() : less than          等同于     <
+     *      le() : less equals        等同于     <=
+     *
+     *  使用 selectMaps() 返回多个 指定到Map做封装 的集合
+     *
+     */
+    @Test
+    public void abstractWrapperTest_gt_ge_lt_le() {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.ge("age", 21);
+        userQueryWrapper.le("age", 24);
+        List<Map<String, Object>> mapList = userMapper.selectMaps(userQueryWrapper);
+        mapList.forEach(System.out::println);
+        /**
+         * 输出:
+         *      ==>  Preparing: SELECT id,name,age,email FROM user WHERE age >= ? AND age <= ?
+         *      ==> Parameters: 21(Integer), 24(Integer)
+         */
+    }
+
+    /**
+     *  测试
+     *      between()       等同于 WHERE age between ? and ?
+     *      notBetween()    等同于 WHERE age not between ? and ?
+     *  +
+     *  使用 selectList() 返回多个 非指定类型对象 的集合
+     *
+     */
+    @Test
+    public void abstractWrapperTest_between() {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper
+                .between("age", 18,24)
+                .notBetween("id",0,11);// 支持链式调用
+
+        List<User> userList = userMapper.selectList(userQueryWrapper);
+        userList.forEach(System.out::println);
+        /**
+         * 输出:
+                 ==>  Preparing: SELECT id,name,age,email FROM user WHERE age BETWEEN ? AND ? AND id NOT BETWEEN ? AND ?
+                 ==> Parameters: 18(Integer), 24(Integer), 0(Integer), 11(Integer)
+         */
+    }
+
+    /**
+     *  测试
+     *      like()              等同于 LIKE '%?%'
+     *      notLike()           等同于 NOT LIKE '%?%'
+     *      likeLeft()          等同于 LIKE '%?'
+     *      likeRight()         等同于 LIKE '?%'
+     *  +
+     *  使用 selectCount()   返回查询到的条数
+     */
+    @Test
+    public void abstractWrapperTest_like() {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper
+                .like("email", "test")
+                .notLike("email","test4")
+                .likeRight("name","J") // J%
+                .likeLeft("name","e"); //%e
+        Integer selectCount = userMapper.selectCount(userQueryWrapper);
+        System.out.println(selectCount);
+        /**
+         * 输出:
+                 ==>  Preparing: SELECT id,name,age,email FROM user WHERE email LIKE ? AND email NOT LIKE ? AND name LIKE ? AND name LIKE ?
+                 ==> Parameters: %test%(String), %test4%(String), J%(String), %e(String)
+         */
+    }
+
+    /**
+     *  测试
+     *      null()              等同于 is null
+     *      isNotNull()         等同于 is not null
+     *
+     */
+    @Test
+    public void abstractWrapperTest_null() {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper
+               .isNotNull("name");
+        Integer selectCount = userMapper.selectCount(userQueryWrapper);
+        System.out.println(selectCount);
+        /**
+         * 输出:
+             ==>  Preparing: SELECT COUNT(1) FROM user WHERE name IS NOT NULL
+             ==> Parameters:
+             <==    Columns: COUNT(1)
+         */
+    }
+
+    /**
+     *  测试
+     *      in()              等同于 IN (?,?)
+     *      notIn()           等同于 NOT IN (?,?)
+     *      inSql()           等同于 IN (sql)
+     *      notInSql()        等同于 NOT IN (sql)
+     */
+    @Test
+    public void abstractWrapperTest_in() {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        List<Long> idLists = new ArrayList<>();
+        idLists.add(11L);
+        idLists.add(13L);
+        userQueryWrapper
+               // .in("id",idLists);
+                .inSql("id","select id from user where id<=15");
+        List<User> userList = userMapper.selectList(userQueryWrapper);
+        userList.forEach(System.out::println);
+        /**
+         * 输出:
+                 ==>  Preparing: SELECT id,name,age,email FROM user WHERE id IN (select id from user where id<=15)
+                 ==> Parameters:
+         */
+    }
+
+    /**
+     *  测试
+     *      groupBy() .. 支持多参数    等同于 GROUP BY age,name,id
+     */
+    @Test
+    public void abstractWrapperTest_group() {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper
+                .groupBy("age","name","id");
+        List<User> userList = userMapper.selectList(userQueryWrapper);
+        userList.forEach(System.out::println);
+        /**
+         * 输出:
+             ==>  Preparing: SELECT id,name,age,email FROM user GROUP BY age,name,id
+             ==> Parameters:
+         */
+    }
+
+    /**
+     *  测试
+     *      orderBy()     .. 支持多参数    等同于 关于 condition
+     *      orderByDesc() .. 支持多参数    等同于 ORDER BY age DESC , id DESC
+     *      orderByAsc()  .. 支持多参数    等同于 ORDER BY age ASC , id ASC
+     */
+    @Test
+    public void abstractWrapperTest_order() {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper
+                .orderByAsc("age","id");
+        List<User> userList = userMapper.selectList(userQueryWrapper);
+        userList.forEach(System.out::println);
+        /**
+         * 输出:
+             ==>  Preparing: SELECT id,name,age,email FROM user ORDER BY age ASC , id ASC
+             ==> Parameters:
+         */
+    }
+
+    /**
+     *  测试
+     *      having()     .. 支持多参数    等同于 HAVING sum(id)> ?
+     */
+    @Test
+    public void abstractWrapperTest_having() {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper
+                .groupBy("age")
+                .having("sum(id)>{0}",20);// 替换里面的参数
+        List<User> userList = userMapper.selectList(userQueryWrapper);
+        userList.forEach(System.out::println);
+        /**
+         * 输出:
+                 ==>  Preparing: SELECT id,name,age,email FROM user GROUP BY age HAVING sum(id)>?
+                 ==> Parameters: 20(Integer)
+         */
+    }
+
+    /**
+     *  测试
+     *      or()       等同于 or
+     *      and()       等同于 and
+     */
+    @Test
+    public void abstractWrapperTest_or_and() {
+        // 简单 or 和and
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper
+                .eq("id",11)
+                .or()  // 默认and()
+//                .and() // 两个不能连用
+                .eq("id",13);
+        List<User> userList = userMapper.selectList(userQueryWrapper);
+        userList.forEach(System.out::println);
+        /**
+         * 输出:
+                 ==>  Preparing: SELECT id,name,age,email FROM user WHERE id = ? OR id = ?
+                 ==> Parameters: 11(Integer), 13(Integer)
+         */
+
+        // 嵌套的 or 和and
+        QueryWrapper<User> userQueryWrapper1 = new QueryWrapper<>();
+        userQueryWrapper1
+                .eq("id",14)
+                .or(i -> i.eq("name", "Lynwood").ne("age", "18"));
+        List<User> userList1 = userMapper.selectList(userQueryWrapper1);
+        userList1.forEach(System.out::println);
+        /**输出:
+         *
+         * ==>  Preparing: SELECT id,name,age,email FROM user WHERE id = ? OR ( name = ? AND age <> ? )
+         * ==> Parameters: 14(Integer), Lynwood(String), 18(String)
+         */
+        /**!!!!!!!!!!!!  .or(i -> i.eq("name", "Lynwood").ne("age", "18"));  解释  见下文发现问题*/
+    }
+
+    /**
+     *  测试
+     *      apply()    动态传参防止 sql注入    占位符 替换 以值的形式添加
+     */
+    @Test
+    public void abstractWrapperTest_apply() {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper
+               .apply("id>{0}",13);
+        List<User> userList = userMapper.selectList(userQueryWrapper);
+        userList.forEach(System.out::println);
+        /**
+         * 输出:
+                 ==>  Preparing: SELECT id,name,age,email FROM user WHERE id>?
+                 ==> Parameters: 13(Integer)
+         */
+    }
+
+    /**
+     *  测试
+     *      last()   在sql 最后追加
+     *
+     *      最常用 last("limit 1")
+     */
+    @Test
+    public void abstractWrapperTest_last() {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper
+               .last("limit 2");
+        List<User> userList = userMapper.selectList(userQueryWrapper);
+        userList.forEach(System.out::println);
+        /**
+         * 输出:
+                 ==>  Preparing: SELECT id,name,age,email FROM user limit 2
+                 ==> Parameters:
+         */
+    }
+
+    /**
+     *  测试
+     *      exists()  拼接 EXISTS ( sql语句 )
+     *      notExists()  拼接 NOT EXISTS ( sql语句 )
+     */
+    @Test
+    public void abstractWrapperTest_exists() {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper
+                .exists("SELECT id,name,age,email FROM user where id= 222");
+        List<User> userList = userMapper.selectList(userQueryWrapper);
+        userList.forEach(System.out::println);
+        /**
+         * 输出:
+                 ==>  Preparing: SELECT id,name,age,email FROM user WHERE EXISTS (SELECT id,name,age,email FROM user where id= 222)
+                 ==> Parameters:
+                 <==      Total: 0
+         */
+    }
+
+    /**
+     *  测试
+     *      nested()  正常嵌套  (无 or and 模式嵌套)
+     */
+    @Test
+    public void abstractWrapperTest_nested() {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper
+                .nested(i -> i.eq("name", "Lynwood").eq("age", "18"));
+        List<User> userList = userMapper.selectList(userQueryWrapper);
+        userList.forEach(System.out::println);
+        /**
+         * 输出:
+                 ==>  Preparing: SELECT id,name,age,email FROM user WHERE ( name = ? AND age = ? )
+                 ==> Parameters: Lynwood(String), 18(String)
+         */
+    }
+}
+
+```
+
+##### **发现问题**: `boolean condition` 、` R column`和 `Function<This, This> func` 三个参数相关问题
+
+###### 说明及使用:
+
+
 
 
 
@@ -996,17 +1470,8 @@ INSERT INTO user ( name, age, email) VALUES
 
 ## 参考文档：
 
-> MyBatis-Plus 官网： https://mp.baomidou.com/
->
-> MyBatis-Plus 配置进阶： https://mp.baomidou.com/config/
->
-> MyBatis-Plus 代码生成器配置https://mp.baomidou.com/config/generator-config.html
->
-> mybatis-plus sql注入原理https://www.liangzl.com/get-article-detail-19831.html
->
-> CnBlogs 为什么用ORM：https://www.cnblogs.com/bobositlife/articles/what-is-orm-why-use-orm.html
->
-> oKong简书 Mybatis-Plus使用全解：https://www.jianshu.com/p/7299cba2adec
->
->
-
+[MyBatis-Plus 官方文档]: https://mp.baomidou.com/
+[MyBatis-Plus 配置进阶]: https://mp.baomidou.com/config/
+[MyBatis-Plus 代码生成器配置]: https://mp.baomidou.com/config/generator-config.html
+[mybatis-plus sql注入原理]: https://www.liangzl.com/get-article-detail-19831.html
+[oKong简书 Mybatis-Plus使用全解]:  https://www.jianshu.com/p/7299cba2adec

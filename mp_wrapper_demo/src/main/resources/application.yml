@@ -1,0 +1,14 @@
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://zwt.meeket.com:3306/mp_demo_db?characterEncoding=utf-8
+    username: root
+    password: Zhaowentao123!
+
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: auto
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
