@@ -1094,7 +1094,7 @@ mybatis-plus:
 
 ###### 编写测试类:
 
-Demo 中有  链接:
+Demo 中有  链接:https://github.com/wunian7yulian/MybatisDemo/blob/master/mp_wrapper_demo/src/test/java/com/lynwood/mp/mp_wrapper_demo/MpWrapperDemoApplicationTests.java
 
 ```java
 ...
