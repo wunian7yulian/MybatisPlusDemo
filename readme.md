@@ -2,6 +2,8 @@
 
 ![mybatis-plus图像](https://mp.baomidou.com/img/logo.png)
 
+#### 目录:
+
 [TOC]
 
 #### 简介： 
@@ -1041,9 +1043,9 @@ mybatis-plus:
 
 实际上 此包装实际上是**使用的是 数据库字段** 不是Pojo 里面的成员变量
 
-在3.x 升级中对Wrapper进行了改动:
+**在3.x 升级中对Wrapper进行了改动**:
 
-- 全面支持了jdk8的Lambda的使用
+- 全面支持了jdk8的**Lambda**的使用
 
 - `Wrapper<T>`实现类的改动
 
@@ -1056,7 +1058,7 @@ mybatis-plus:
   2.去除了`updateAllColumn(T entity)`方法
   3.新增`update(T entity, Wrapper<T> updateWrapper)`方法
 
-在3.x 中将 所有的操作划分成 查询`QueryWrapper`和`UpdateWrapper` 并且将其共有的方法做了一层抽离放到了`AbstractWrapper`中
+在3.x 中将 所有的操作划分成 查询`QueryWrapper`和`UpdateWrapper` 并且将其共有的方法做了一层**抽离**放**到**了`AbstractWrapper`**中**
 
 ###### 3.x Wrapper主要继承结构: 
 
@@ -1092,15 +1094,15 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 ```
 
-###### 编写测试类:
+###### 一> 编写AbstractWrapper测试类:
 
-Demo 中有  链接:https://github.com/wunian7yulian/MybatisDemo/blob/master/mp_wrapper_demo/src/test/java/com/lynwood/mp/mp_wrapper_demo/MpWrapperDemoApplicationTests.java
+Demo 中有  链接:https://github.com/wunian7yulian/MybatisDemo/blob/master/mp_wrapper_demo/src/test/java/com/lynwood/mp/mp_wrapper_demo/MpWrapperDemoApplicationAbstractWrapperTests.java
 
 ```java
 ...
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class MpWrapperDemoApplicationTests {
+public class MpWrapperDemoApplicationAbstractWrapperTests {
     @Autowired
     private UserMapper userMapper;
 
@@ -1462,16 +1464,308 @@ public class MpWrapperDemoApplicationTests {
 
 ###### 说明及使用:
 
+​	Demo 中有  测试链接:https://github.com/wunian7yulian/MybatisDemo/blob/master/mp_wrapper_demo/src/test/java/com/lynwood/mp/mp_wrapper_demo/MpWrapperDemoApplicationAbstractWrapperParamTests.java
+
+###### 1.关于入参: `boolean condition` 
+
+> - **以下出现的第一个入参`boolean condition`表示该条件*是否加入最后生成的sql中*,默认是true**
+
+使用`ne()` 方法举例  源码 :
+
+```java
+   @Override
+    public This ne(boolean condition, R column, Object val) {
+        return addCondition(condition, column, NE, val);
+    }
+```
+
+测试编写:
+
+```java
+   /**
+     *  测试 boolean condition
+     */
+    @Test
+    public void abstractWrapperTest_Condition() {
+        Integer age = new Random().nextInt(25);
+        System.out.println("年龄: " + age);
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        boolean condition = age<=18;
+        userQueryWrapper.ne(condition,"name","Lynwood");
+        List<User> userList = userMapper.selectList(userQueryWrapper);
+        userList.forEach(System.out::println);
+    }
+```
+
+​	生成的随机数age 小于18岁的 不要让他查到`name="Lynwood"`的信息
+
+再此看来**等同于**`*mapper.xml`配置 
+
+```xml
+WHERE 1=1  
+<if test="age <= 18">
+    AND name <> #{name}
+</if>
+```
+
+帮我们提入到了每个方法中,并且省去我们关系 是否写`AND`关键字或者 必须有 `WHERE 1=1`这些难看却又不必要的配置
+
+###### 2.关于入参: `R column` 
+
+> - 以下方法在入参中出现的`R`为**泛型,**在普通wrapper中是`String`,在LambdaWrapper中是**函数**(例:`Entity::getId`,`Entity`为实体类,`getId`为字段`id`的**getMethod**)
+> - 以下方法入参中的`R column`均表示数据库字段,当`R`为`String`时则为数据库字段名(**字段名是数据库关键字的自己用转义符包裹!**)!而不是实体类数据字段名!!!
+
+查看源码 发现实际上 `eq()、ne()...` 等需要传入`R column`的方法实际最后**都是调用**了`addCondition(...)` 方法
+
+![1547174994254](assets/1547174994254.png)
+
+对 `R column`参数做了 `columnToString(column)`操作
+
+而 `AbstractWrapper`实际中的**此方法是抽象**的: 
+
+```java
+    /**
+     * 获取 columnName
+     */
+    protected abstract String columnToString(R column);
+```
+
+![1547175323184](assets/1547175323184.png)
+
+而我们再去查看我们使用的 `QueryWrapper`与`UpdateWrapper` 中的**具体实现**都为:
+
+```java
+  @Override
+    protected String columnToString(String column) {
+        return column;
+    }
+```
+
+实际上是转换成了`String`类型, **那么为什么使用了泛型呢**?
+
+我们再返回去查看他的**另一个实现类**`AbstractLambdaWrapper` 中的实现:
+
+```java
+@Override
+protected String columnToString(SFunction<T, ?> column) {
+    return getColumn(LambdaUtils.resolve(column));
+}
+```
+
+原来这里**使用泛型** 为了**扩展Lambda方式**使用!
+
+> ### lambda
+>
+> - 获取 `LambdaWrapper`
+>   在`QueryWrapper`中是获取`LambdaQueryWrapper`
+>   在`UpdateWrapper`中是获取`LambdaUpdateWrapper`
+
+测试:
+
+```java
+    /**
+     *  测试 R column
+     */
+    @Test
+    public void abstractWrapperTest_Column() {
+  		QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+//        userQueryWrapper.ne("name","Lynwood");
+        userQueryWrapper.lambda().eq(User::getName,"Lynwood");
+        
+        List<User> userList = userMapper.selectList(userQueryWrapper);
+        userList.forEach(System.out::println);
+    }
+
+```
+
+###### 3.关于入参: `Function<This, This> func` 
+
+**其实再测试AbstractWrapper中的 or/and 嵌套中已经使用过了**
+
+以`or()`举例  
+
+​	需要**传入的是**  `Function`**的实现**  而`Function`的定义是: 
+
+```java
+/**
+ * Represents a function that accepts one argument and produces a result.
+ *	表示接受一个参数执行生成结果的函数对象。
+ * @since 1.8
+ */
+@FunctionalInterface
+public interface Function<T, R> {
+```
+
+在我们使用过程中 往往是为了**嵌套** 我们传入的可能是另一个Wrapper 让他和当前的Wrapper去链接/嵌套起来
+
+那么在:
+
+```java
+  userQueryWrapper.ne("name","Lynwood")
+                        .or(i -> i.eq("age", "18"));
+```
+
+中 我们实际上传入了一个匿名的Wrapper对象,那么这个**匿名的Wrapper对象怎么符合了Function的要求呢**
+
+我们查看这个`i`变量 : ![1547179827539](assets/1547179827539.png)
+
+
+
+他的类型是与调用对象一致的  查看 `QueryWrapper<User>`的继承关系:
+
+![1547179917168](assets/1547179917168.png)
+
+实际上我们使用的所有接口都去间接继承了`ISqlSegment` 接口 ,而它:
+
+```java
+package com.baomidou.mybatisplus.core.conditions;
+@FunctionalInterface
+public interface ISqlSegment extends Serializable {
+
+```
+
+是被@FunctionalInterface 标识的  与:
+
+```java
+package java.util.function;
+@FunctionalInterface
+public interface Function<T, R> {
+```
+
+是一样的, 所以我们使用它可以这样简便的使用啦:
+
+测试:
+
+```java
+ @Test
+    public void abstractWrapperTest_Func() {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.ne("name","Lynwood");
+        userQueryWrapper.or(new Function<QueryWrapper<User>, QueryWrapper<User>>() {
+            @Override
+            public QueryWrapper<User> apply(QueryWrapper<User> userQueryWrapper) {
+                return userQueryWrapper.eq("age", "18");
+            }
+        });
+        // 等同与
+        // userQueryWrapper.ne("name","Lynwood")
+        //                        .or(i -> i.eq("age", "18"));
+        List<User> userList = userMapper.selectList(userQueryWrapper);
+        userList.forEach(System.out::println);
+    }
+```
+
+------
+
+###### 二> 编写QueryWrapper与UpdateWrapper测试类:
+
+Demo 中有  链接:https://github.com/wunian7yulian/MybatisDemo/blob/master/mp_wrapper_demo/src/test/java/com/lynwood/mp/mp_wrapper_demo/MpWrapperDemoApplicationQueryAndUpdateWrapperTests.java
+
+其实在上面的所有测试中其**返回值都是完全的装配到了实体对象**中,但是有的时候 比如有个**字段**很大 很消耗内存,同时也**用不到**,那么我**如何**把他**取消**掉.设置返回值为我们需要的几个字段就好
+
+`select()`测试
+
+##### **注意坑**  在借用 `lambda()` 使用 lambda特性时!
+
+```java
+    /**
+     *  测试 QueryWrapper.select()
+     *
+     */
+ @Test
+    public void abstractWrapperTest_Select() {
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+//        userQueryWrapper.eq("age",18)
+//                .select("id","name");
+        userQueryWrapper.eq("age",18)
+                .select(User.class,i -> false);//只返回id
+        List<User> userList = userMapper.selectList(userQueryWrapper);
+            // SELECT id FROM user WHERE age = ?
+        userList.forEach(System.out::println);
+
+        //前方有坑 注意: 注意!!!!!!!!!!!
+
+        //关于LambdaQueryWrapper的使用这样用是没问题的
+        LambdaQueryWrapper<User> lambdaQueryWrapper = new QueryWrapper<User>().lambda();
+        lambdaQueryWrapper.select(User::getId,User::getAge);
+        List<User> userList1 = userMapper.selectList(lambdaQueryWrapper);
+            //SELECT id,age FROM user
+        userList1.forEach(System.out::println);
+
+        // 这样设置是无效的!!!!
+        QueryWrapper<User> userQueryWrapper2 = new QueryWrapper<>();
+        userQueryWrapper2.lambda().select(User::getId,User::getAge);
+        List<User> userList2 = userMapper.selectList(userQueryWrapper2);
+            // SELECT id,name,age,email FROM user
+        userList2.forEach(System.out::println);
+    }
+
+```
+
+`set() setSql()` 测试
+
+```java
+	/**
+     *  测试 UpdateWrapper.set()
+     *  测试 UpdateWrapper.setSql()
+     */
+    @Test
+    public void abstractWrapperTest_Set() {
+        UpdateWrapper<User> userUpdateWrapper = new UpdateWrapper<>();
+        // 更新id==11 的age 为19
+        userUpdateWrapper.set("age",19).eq("id",11);
+        // 附加更新内容 name 设置
+        User user = new User();
+        user.setName("Lynwood1");
+        userMapper.update(user,userUpdateWrapper);
+        /**
+         *          ==>  Preparing: UPDATE user SET name=?, age=? WHERE id = ?
+         *          ==> Parameters: Lynwood1(String), 19(Integer), 11(Integer)
+         *          <==    Updates: 1
+         */
+
+        UpdateWrapper<User> userUpdateWrapper1 = new UpdateWrapper<>();
+        userUpdateWrapper1.setSql("name='wunian7yulian'").eq("id",11);
+        // 附加更新内容为空时  不能传入null  需要传入空实体对象
+        userMapper.update(new User(),userUpdateWrapper1);
+        /**
+         *      ==>  Preparing: UPDATE user SET name='wunian7yulian' WHERE id = ?
+         *      ==> Parameters: 11(Integer)
+         *      <==    Updates: 1
+         */
+    }
+```
+
+## 六、插件及扩展
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
 
 ## 参考文档：
 
-[MyBatis-Plus 官方文档]: https://mp.baomidou.com/
-[MyBatis-Plus 配置进阶]: https://mp.baomidou.com/config/
-[MyBatis-Plus 代码生成器配置]: https://mp.baomidou.com/config/generator-config.html
-[mybatis-plus sql注入原理]: https://www.liangzl.com/get-article-detail-19831.html
-[oKong简书 Mybatis-Plus使用全解]:  https://www.jianshu.com/p/7299cba2adec
+> MyBatis-Plus 官方文档 : https://mp.baomidou.com/ 
+>
+> MyBatis-Plus 配置进阶 : https://mp.baomidou.com/config/ 
+>
+> MyBatis-Plus 代码生成器配置 : https://mp.baomidou.com/config/generator-config.html 
+>
+> MyBatis-Plus sql注入原理 :  https://www.liangzl.com/get-article-detail-19831.html 
+>
+> Mybatis-Plus使用全解 : https://www.jianshu.com/p/7299cba2adec 

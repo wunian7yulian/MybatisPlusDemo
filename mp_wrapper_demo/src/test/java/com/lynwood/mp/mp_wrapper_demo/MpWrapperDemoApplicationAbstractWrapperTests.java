@@ -14,9 +14,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * AbstractWrapper(UpdateWrapper和QueryWrapper 共有) 接口测试
+ */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class MpWrapperDemoApplicationTests {
+public class MpWrapperDemoApplicationAbstractWrapperTests {
     @Autowired
     private UserMapper userMapper;
 
