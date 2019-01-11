@@ -158,7 +158,7 @@ INSERT INTO user (id, name, age, email) VALUES
 
 ##### 第一步、创建工程
 
-![1546839886488](/docs/assets/1546839886488.png)
+![1546839886488](assets/1546839886488.png)
 
 输入项目包名 并**添加mysql模块** 创建完毕。
 
@@ -470,19 +470,19 @@ public class GeneratorCode {
 
 ##### 第四步、运行测试
 
-![1546926876784](/docs/assets/1546926876784.png)
+![1546926876784](assets/1546926876784.png)
 
 
 
 在控制台输入：
 
-![1546926951091](/docs/assets/1546926951091.png)
+![1546926951091](assets/1546926951091.png)
 
 就可以生成代码啦！  
 
 都包含 ：
 
-![1546927063917](/docs/assets/1546927063917.png)
+![1546927063917](assets/1546927063917.png)
 
 ##### **发现问题**： 如果是多模块项目 生成的文件会直接到了父项目目录下
 
@@ -492,7 +492,7 @@ public class GeneratorCode {
 
 ​	我们可以设定运行参数选项
 
-![1546927538730](/docs/assets/1546927538730.png)
+![1546927538730](assets/1546927538730.png)
 
 
 
@@ -516,7 +516,7 @@ https://github.com/wunian7yulian/MybatisDemo/tree/master/mp_crud_demo
 
 ​	我们可以分为三类 **Mapper的CRUD接口**、**Service的CRUD接口**和**mapper层选装件接口**：
 
-![1546932099260](/docs/assets/1546932099260.png)
+![1546932099260](assets/1546932099260.png)
 
 ​	确实比较丰富 ， 下面会以具有代表性的例子来使用 演示 作为Demo主要内容
 
@@ -610,7 +610,7 @@ https://github.com/wunian7yulian/MybatisDemo/tree/master/mp_crud_demo
 
   查看当前接口的结构(Structure): 
 
-  ![1547002387987](/docs/assets/1547002387987.png)
+  ![1547002387987](assets/1547002387987.png)
 
   **原来**是MP 将之前的mybatis里面**每个mapper的所有方法** 经过**泛型**进行提炼到了一个BaseMapper 接口中,我们**只需要将自己的mapper 继承此接口且将泛型指定便可获得强大的CRUD功能**!
 
@@ -712,7 +712,7 @@ public abstract MappedStatement injectMappedStatement(Class<?> var1, Class<?> va
 
 是**抽象的** 需要自己的子类**去实现**的  
 
-![1547011199397](/docs/assets/1547011199397.png)
+![1547011199397](assets/1547011199397.png)
 
 我们**以**其中一个 `SelectById.class`  作为**例子**查看
 
@@ -886,7 +886,7 @@ INSERT INTO user ( name, age, email) VALUES
 
 查看了MP作者说的: 
 
-![1547021955044](/docs/assets/1547021955044.png)
+![1547021955044](assets/1547021955044.png)
 
 中的 **[案例](https://gitee.com/baomidou/mybatis-plus-samples/tree/master/mybatis-plus-sample-sql-injector)** 以及 **[源码注释](https://gitee.com/baomidou/mybatis-plus/blob/3.0/mybatis-plus-extension/src/main/java/com/baomidou/mybatisplus/extension/injector/methods/additional/InsertBatchSomeColumn.java)** 之后
 
@@ -1016,7 +1016,7 @@ mybatis-plus:
 
 ###### Wrapper含义: 
 
-​	![1547101878214](/docs/assets/1547101878214.png)
+​	![1547101878214](assets/1547101878214.png)
 
 ###### 版本不同:
 
@@ -1062,7 +1062,7 @@ mybatis-plus:
 
 ###### 3.x Wrapper主要继承结构: 
 
-![1547103652530](/docs/assets/1547103652530.png)
+![1547103652530](assets/1547103652530.png)
 
 我们查看**四个实现类**:`QueryWrapper`、`UpdateWrapper` 、`LambdaQueryWrapper`、`LambdaUpdateWrapper` 的一个**总体抽象**: `AbstractWrapper`
 
@@ -1072,15 +1072,15 @@ mybatis-plus:
 
 ###### AbstractWrapper接口:
 
-![1547104354429](/docs/assets/1547104354429.png)
+![1547104354429](assets/1547104354429.png)
 
 ###### AbstractWrapper接口:
 
-![1547104548508](/docs/assets/1547104548508.png)
+![1547104548508](assets/1547104548508.png)
 
 ######  UpdateWrapper接口:
 
-![1547104637008](/docs/assets/1547104637008.png)
+![1547104637008](assets/1547104637008.png)
 
 
 
