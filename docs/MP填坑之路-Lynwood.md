@@ -728,7 +728,7 @@ public abstract MappedStatement injectMappedStatement(Class<?> var1, Class<?> va
 **再去查看** `SqlMethod.SELECT_BY_ID;`: 
 
 ```java
-SELECT_BY_ID("selectById", "根据ID 查询一条数据", "SELECT %s FROM %s WHERE %s=#{%s}"),
+SELECT_BY_ID("selectById", "根据ID 查询一条数据", "SELECT %s FROM %s WHERE %s=#{ %s}"),
 ```
 
 *soga~*
