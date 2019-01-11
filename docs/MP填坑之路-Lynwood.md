@@ -10,7 +10,9 @@
 
 ​	此Demo 主要应用SpringBoot 来展示**Mybatis-Plus** 特性， 以及在开发过程中可能应用到的插件的演示。
 
-​	**本文：https://github.com/wunian7yulian/MybatisDemo**
+​	**源码：https://github.com/wunian7yulian/MybatisDemo**
+
+​	**本文：https://wunian7yulian.github.io/MybatisDemo/**
 
 ------
 
