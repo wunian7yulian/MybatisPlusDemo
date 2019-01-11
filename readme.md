@@ -1,4 +1,4 @@
-# Mybatis-Plus 分享
+# Mybatis-Plus 我来填坑~
 
 ![mybatis-plus图像](https://mp.baomidou.com/img/logo.png)
 
@@ -26,7 +26,7 @@
 
 - **规划**：
 
-   *分享-趟路-实践-总结-脚手架-分享-实践......*  
+   *分享-实践-填坑-总结-脚手架-分享-实践......*  
 
    ​	
 
@@ -1738,9 +1738,13 @@ Demo 中有  链接:https://github.com/wunian7yulian/MybatisDemo/blob/master/mp_
 
 ## 六、插件及扩展
 
+### 分页插件:
 
+### 热加载:
 
+### 逻辑删除:
 
+### 乐观锁插件:
 
 
 
