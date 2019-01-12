@@ -10,9 +10,9 @@
 
 ​	此Demo 主要应用SpringBoot 来展示**Mybatis-Plus** 特性， 以及在开发过程中可能应用到的插件的演示。
 
-​	**源码：https://github.com/wunian7yulian/MybatisDemo**
+​	**源码：https://github.com/wunian7yulian/MybatisPlusDemo**
 
-​	**本文：https://wunian7yulian.github.io/MybatisDemo/**
+​	**本文：https://wunian7yulian.github.io/MybatisPlusDemo/**
 
 ------
 
@@ -106,7 +106,7 @@ MyBatis-Plus 荣获[【2018年度开源中国最受欢迎的中国软件】](htt
 
 #### Demo代码地址：
 
-https://github.com/wunian7yulian/MybatisDemo/tree/master/simpledemo
+https://github.com/wunian7yulian/MybatisPlusDemo/tree/master/simpledemo
 
 #### Demo 环境： 
 
@@ -305,7 +305,7 @@ User{id=5, name='Bill', age=24,email='test5@baomidou.com'}
 
 #### Demo代码地址：
 
-https://github.com/wunian7yulian/MybatisDemo/tree/master/simpledemo
+https://github.com/wunian7yulian/MybatisPlusDemo/tree/master/simpledemo
 
 #### Demo 环境： 
 
@@ -510,7 +510,7 @@ public class GeneratorCode {
 
 #### Demo代码地址：
 
-https://github.com/wunian7yulian/MybatisDemo/tree/master/mp_crud_demo
+https://github.com/wunian7yulian/MybatisPlusDemo/tree/master/mp_crud_demo
 
 
 
@@ -995,7 +995,7 @@ INSERT INTO user ( name, age, email) VALUES
 
 #### Demo代码地址：
 
-https://github.com/wunian7yulian/MybatisDemo/tree/master/mp_wrapper_demo
+https://github.com/wunian7yulian/MybatisPlusDemo/tree/master/mp_wrapper_demo
 
 #### 工程: 
 
@@ -1098,7 +1098,7 @@ mybatis-plus:
 
 ###### 一> 编写AbstractWrapper测试类:
 
-Demo 中有  链接:https://github.com/wunian7yulian/MybatisDemo/blob/master/mp_wrapper_demo/src/test/java/com/lynwood/mp/mp_wrapper_demo/MpWrapperDemoApplicationAbstractWrapperTests.java
+Demo 中有  链接:https://github.com/wunian7yulian/MybatisPlusDemo/blob/master/mp_wrapper_demo/src/test/java/com/lynwood/mp/mp_wrapper_demo/MpWrapperDemoApplicationAbstractWrapperTests.java
 
 ```java
 ...
@@ -1466,7 +1466,7 @@ public class MpWrapperDemoApplicationAbstractWrapperTests {
 
 ###### 说明及使用:
 
-​	Demo 中有  测试链接:https://github.com/wunian7yulian/MybatisDemo/blob/master/mp_wrapper_demo/src/test/java/com/lynwood/mp/mp_wrapper_demo/MpWrapperDemoApplicationAbstractWrapperParamTests.java
+​	Demo 中有  测试链接:https://github.com/wunian7yulian/MybatisPlusDemo/blob/master/mp_wrapper_demo/src/test/java/com/lynwood/mp/mp_wrapper_demo/MpWrapperDemoApplicationAbstractWrapperParamTests.java
 
 ###### 1.关于入参: `boolean condition` 
 
@@ -1661,7 +1661,7 @@ public interface Function<T, R> {
 
 ###### 二> 编写QueryWrapper与UpdateWrapper测试类:
 
-Demo 中有  链接:https://github.com/wunian7yulian/MybatisDemo/blob/master/mp_wrapper_demo/src/test/java/com/lynwood/mp/mp_wrapper_demo/MpWrapperDemoApplicationQueryAndUpdateWrapperTests.java
+Demo 中有  链接:https://github.com/wunian7yulian/MybatisPlusDemo/blob/master/mp_wrapper_demo/src/test/java/com/lynwood/mp/mp_wrapper_demo/MpWrapperDemoApplicationQueryAndUpdateWrapperTests.java
 
 其实在上面的所有测试中其**返回值都是完全的装配到了实体对象**中,但是有的时候 比如有个**字段**很大 很消耗内存,同时也**用不到**,那么我**如何**把他**取消**掉.设置返回值为我们需要的几个字段就好
 
