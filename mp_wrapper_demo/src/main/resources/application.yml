@@ -10,5 +10,6 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: auto
+# 日志打印配置
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
