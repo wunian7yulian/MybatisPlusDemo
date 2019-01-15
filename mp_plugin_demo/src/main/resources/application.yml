@@ -2,9 +2,9 @@
 spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://zwt.meeket.com:3306/mp_demo_db?characterEncoding=utf-8
+    url: jdbc:mysql://127.0.0.1:3306/mp_demo_db?characterEncoding=utf-8
     username: root
-    password: Zhaowentao123!
+    password: 123456
 
 mybatis-plus:
   global-config:
