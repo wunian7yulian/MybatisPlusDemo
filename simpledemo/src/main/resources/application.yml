@@ -3,6 +3,6 @@ spring:
   datasource:
     # 这里如果有错误是因为 maven mysql包 选择了 runtime 形式的 scope  可以不用管它 继续下一步就好
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://zwt.meeket.com:3306/mp_demo_db?characterEncoding=utf-8
+    url: jdbc:mysql://127.0.0.1:3306/mp_demo_db?characterEncoding=utf-8
     username: root
-    password: Zhaowentao123!
+    password: 123456
