@@ -12,6 +12,7 @@
         <option value="$PROJECT_DIR$/autogenerator_demo/pom.xml" />
         <option value="$PROJECT_DIR$/mp_crud_demo/pom.xml" />
         <option value="$PROJECT_DIR$/mp_wrapper_demo/pom.xml" />
+        <option value="$PROJECT_DIR$/mp_plugin_demo/pom.xml" />
       </list>
     </option>
   </component>

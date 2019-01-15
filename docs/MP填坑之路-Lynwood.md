@@ -1,11 +1,5 @@
 # Mybatis-Plus 我来填坑~
 
-![mybatis-plus图像](https://mp.baomidou.com/img/logo.png)
-
-#### 目录:
-
-[TOC]
-
 #### 简介： 
 
 ​	此Demo 主要应用SpringBoot 来展示**Mybatis-Plus** 特性， 以及在开发过程中可能应用到的插件的演示。
@@ -32,7 +26,13 @@
 
    ​	
 
+## 目录
+
+[TOC]
+
 ## 一、简单介绍
+
+![mybatis-plus图像](https://mp.baomidou.com/img/logo.png)
 
 ### 官方说明 ：
 
@@ -1740,21 +1740,330 @@ Demo 中有  链接:https://github.com/wunian7yulian/MybatisPlusDemo/blob/master
     }
 ```
 
-## 六、插件及扩展
+## 六、插件及扩展 
 
-### 分页插件:
+### Demo代码地址：
 
-### 热加载:
+https://github.com/wunian7yulian/MybatisPlusDemo/tree/master/mp_plugin_demo	
 
-### 逻辑删除:
+初始化:
 
-### 乐观锁插件:
+​	因为下面演示需要其他字段,所以**重新创建**一个便于Demo的合适的**表**格:
+
+```sql
+-- 创建简单表格
+DROP TABLE IF EXISTS user;
+
+CREATE TABLE `user` (
+  `id` bigint(20) PRIMARY KEY AUTO_INCREMENT  COMMENT '主键ID',
+  `name` varchar(30) DEFAULT NULL COMMENT '姓名',
+  `age` int(11) DEFAULT NULL COMMENT '年龄',
+  `email` varchar(50) DEFAULT NULL COMMENT '邮箱'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO user ( name, age, email) VALUES
+('Jone', 18, 'test1@test.com'),
+('Jack', 20, 'test2@test.com'),
+('Tom', 28, 'test3@test.com'),
+('Sandy', 21, 'test4@test.com'),
+('Billie', 24, 'test5@test.com'),
+('Lynwood', 18, 'wunian_@hotmail.com');
+```
+
+### 工程：
+
+#### 第一 -->第四步、同上
+
+```yaml
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/mp_demo_db?characterEncoding=utf-8
+    username: root
+    password: 123456
+
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: auto
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+```
+
+#### 第五步、插件使用
+
+##### 分页插件:
+
+​	之前做列表或者报表功能时使用最多的是`pageHelper`插件做Mybatis的分页查询,MP为了方便将分页做了一个相关的模块`com.baomidou.mybatisplus.extension.plugins.pagination`供我们分页查询时去使用.
+
+###### 1、创建一个MP插件的配置类:
+
+在business目录下创建config目录 并在该目录下创建`MybatisPlusConfig.java`  添加`@Configuration`注解声明
+
+```java
+@Configuration
+public class MybatisPlusConfig {
+    
+}
+```
+
+###### 2、配置分页插件
+
+```java
+@Configuration
+public class MybatisPlusConfig {
+    @Bean
+    public PaginationInterceptor paginationInterceptor() {
+        return new PaginationInterceptor();
+    }
+}
+```
+
+###### 3、编写测试
+
+```java
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class MpPluginDemoApplicationTests {
+    @Autowired
+    private UserMapper userMapper;
+    /**
+     * 测试分页插件
+     */
+    @Test
+    public void test_page() {
+        IPage<User> userIPage = userMapper.selectPage(
+                  new Page<User>()
+                        .setCurrent(1) //设置当前查询页
+                        .setSize(3) // 设置每页条数
+                        .setDesc("age"),//使用page 进行排序
+                new QueryWrapper<User>()
+                        .lambda()
+                        .likeRight(User::getEmail, "test")
+                        .select(User::getId, User::getName, User::getAge)
+        );
+
+        List<User> records = userIPage.getRecords();
+        records.forEach(System.out::println);
+        /**
+         * ==>  Preparing: SELECT id,name,age FROM user WHERE email LIKE ? ORDER BY age DESC LIMIT ?,?
+         * ==> Parameters: test%(String), 0(Long), 3(Long)
+         */
+    }
+}
+
+```
+
+完美!  不过因为`page`对象在`3.0.6`版本还没有支持lambda方式 page上在设置排序字段时 还是会有一些魔法值出现,不过我们也是可以直接将 排序 写在wrapper里的.  有强迫症的童鞋等待`3.1.0`版本吧.
+
+##### 逻辑删除插件:
+
+###### 1、yaml添加逻辑值制定配置：
+
+```yaml
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/mp_demo_db?characterEncoding=utf-8
+    username: root
+    password: 123456
+
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+```
+
+###### 2、配置逻辑插件:
+
+在MybatisPlusConfig中添加插件bean
+
+```java
+@Configuration
+public class MybatisPlusConfig {
+ 	...
+    @Bean
+    public ISqlInjector sqlInjector() {
+        return new LogicSqlInjector();
+    }
+}
+```
+
+######  3、标识逻辑字段:
+
+在`User`中的 del字段上添加`@TableLogic`注解
+
+```java
+@Data
+@EqualsAndHashCode(callSuper = false)
+@Accessors(chain = true)
+public class User implements Serializable {
+	...
+    /**
+     * 逻辑删除 0-未删除 1-删除
+     */
+    @TableLogic
+    private Integer del;
+    ...
+}
+```
+
+###### 4、编写测试
+
+```java
+ /**
+     * 测试逻辑删除插件
+     */ 
+    @Test
+    public void test_logic_delete() {
+        userMapper.delete(new QueryWrapper<User>()
+                .lambda()
+                .notLike(User::getEmail, "test")
+                .select(User::getId, User::getName, User::getAge));
+        /**
+         * ==>  Preparing: UPDATE user SET del=1 WHERE del=0 AND email NOT LIKE ?
+         * ==> Parameters: %test%(String)
+         */
+        //那么查询呢?
+        List<User> userList = userMapper.selectList(null);
+        userList.forEach(System.out::println);
+        //发现查询也帮我们设置了过滤字段  del = 0
+        /**
+         * ==>  Preparing: SELECT id,name,age,email,del,version FROM user WHERE del=0
+         * ==> Parameters:
+         */
+
+        //那么我想查出这个删除的用户 更改为 正常呢?
+        List<Map<String, Object>> mapList = userMapper.selectMaps(
+                new QueryWrapper<User>()
+                        .lambda()
+                        .eq(User::getDel, 1)
+                        .select(User.class,i -> false)
+        );
+        Assert.assertNotNull(mapList);
+        Assert.assertEquals(mapList.size(),1);
+        /**  select id from user where del = 0 and del = 1
+         * java.lang.AssertionError:
+         * Expected :0
+         * Actual   :1
+         */
+        // 失败了
+        //
+
+    }
+```
+
+询问MP开发者后 开发者说明 因为大部分情况在删除之后不会恢复 所以**没有设定相关恢复或者跳过 当前 筛选的** 接口
+
+##### 乐观锁:
+
+###### 主要适用场景
+
+当要更新一条记录的时候，希望这条记录没有被别人更新
+
+特别说明:
+
+- **支持的数据类型只有:int,Integer,long,Long,Date,Timestamp,LocalDateTime**
+- 整数类型下 `newVersion = oldVersion + 1`
+- `newVersion` 会回写到 `entity` 中
+- **仅支持** `updateById(id)` 与 `update(entity, wrapper)` 方法
+- **在 update(entity, wrapper) 方法下, wrapper 不能复用!!!**
+
+乐观锁实现方式：
+
+- 取出记录时，获取当前version
+
+- 更新时，带上这个version
+
+- 执行更新时， set version = newVersion where version = oldVersion
+
+- 如果version不对，就更新失败
+
+
+1、配置乐观锁插件：
+
+在`MybatisPlusConfig`添加：
+
+```java
+@Bean
+public OptimisticLockerInterceptor optimisticLockerInterceptor() {
+    return new OptimisticLockerInterceptor();
+}
+```
+
+2、添加乐观锁版本字段注解:
+
+```	java
+@Data
+@EqualsAndHashCode(callSuper = false)
+@Accessors(chain = true)
+public class User implements Serializable {
+	...
+    /**
+     * 乐观锁版本字段
+     */
+    @Version
+    private Integer version;
+}
+```
+
+3、编写测试类: 
+
+```java
+/**
+     * 测试乐观锁插件
+     */
+    @Test
+    public void test_Optimistic_Locking() throws InterruptedException {
+        User oldUser = userMapper.selectById(1);
+        oldUser.setAge(19);
+        System.out.println("模拟中途有人更改"+ "begin....");
+        Thread.sleep(10000);
+        System.out.println("模拟中途有人更改"+ "end....");
+        if(userMapper.updateById(oldUser)==1){
+            System.out.println("success \n"+ oldUser);
+            //success
+            //User(id=1, name=Jone, age=19, email=test1@test.com, del=0, version=2)
+        }else {
+            System.out.println("fail \n");
+            //==>  Preparing: UPDATE user SET name=?, age=?, email=?, version=? WHERE id=? AND version=? AND del=0
+            //==> Parameters: Jone(String), 19(Integer), test1@test.com(String), 3(Integer), 1(Long), 2(Integer)
+            //<==    Updates: 0
+            //fail
+        }
+    }
+```
+
+其他插件 如 热加载等 如有需要 再做更新
+
+## 七 、总结
+
+MP优秀于简化了Mybatis大部分XML配置 将他归总到起来生成一个强大的Wrapper 
+
+现有MP也是有了两个版本大的版本2.x与3.x ,酌情使用比较合理 3.x虽然有了Lambda的支持但是还不完善,
+
+后续版本的更新应该也会去查漏现版本的缺陷.
+
+对于插件,像乐观锁分页逻辑删真的是贴心,不过也有相对应场景不适用问题,比如上面说到的逻辑删除的我还要查是查不到的,还是需要去自定义sql的
+
+我相信 有了mp这种强大的利器,对于一个微型项目 或者微服务 来说真的是爽,写起来真的是非常有效率
 
 
 
+个人--	
+
+​	作为头一个被我收拾的应用层框架,看到了开发者的用心和初心, 看来排上名并不是那么绝非偶然,也并非那么"功力深厚",只要你有想法开始做,总有一个好的结果.
 
 
- 
+
+下一框架寻找中... 
+
+
 
 ## 参考文档：
 
@@ -1766,4 +2075,4 @@ Demo 中有  链接:https://github.com/wunian7yulian/MybatisPlusDemo/blob/master
 >
 > MyBatis-Plus sql注入原理 :  https://www.liangzl.com/get-article-detail-19831.html 
 >
-> Mybatis-Plus使用全解 : https://www.jianshu.com/p/7299cba2adec 
+> Mybatis-Plus 使用全解 : https://www.jianshu.com/p/7299cba2adec 
