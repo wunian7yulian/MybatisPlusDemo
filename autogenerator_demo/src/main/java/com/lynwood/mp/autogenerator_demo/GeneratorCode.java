@@ -48,11 +48,11 @@ public class GeneratorCode {
 
         // 数据源配置
         DataSourceConfig dsc = new DataSourceConfig();
-        dsc.setUrl("jdbc:mysql://zwt.meeket.com:3306/mp_demo_db?useUnicode=true&useSSL=false&characterEncoding=utf8");
+        dsc.setUrl("jdbc:mysql://127.0.0.1:3306/mp_demo_db?useUnicode=true&useSSL=false&characterEncoding=utf8");
         // dsc.setSchemaName("public");
         dsc.setDriverName("com.mysql.jdbc.Driver");
         dsc.setUsername("root");
-        dsc.setPassword("Zhaowentao123!");
+        dsc.setPassword("123456");
         mpg.setDataSource(dsc);
 
         // 包配置
